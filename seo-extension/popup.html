@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Audit Tool</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SEO Audit Tool</h1>
+      <button id="refreshBtn" title="Refresh Analysis">🔄</button>
+    </header>
+
+    <div id="loading" class="loading">Analyzing page...</div>
+    <div id="content" class="hidden">
+
+      <!-- Recommendations Section -->
+      <section class="section recommendations-section">
+        <h2>✅ Action Items</h2>
+        <p class="section-description">Here's what you should fix to improve your SEO, ranked by priority:</p>
+        <div id="recommendations"></div>
+      </section>
+
+      <!-- Meta Tags Section -->
+      <section class="section">
+        <h2>📝 Meta Tags</h2>
+        <div class="info-group">
+          <div class="info-item">
+            <label>Title:</label>
+            <div class="value" id="metaTitle"></div>
+            <div class="char-count" id="titleLength"></div>
+          </div>
+          <div class="info-item">
+            <label>Description:</label>
+            <div class="value" id="metaDescription"></div>
+            <div class="char-count" id="descriptionLength"></div>
+          </div>
+          <div class="info-item">
+            <label>Language:</label>
+            <div class="value" id="language"></div>
+          </div>
+          <div class="info-item">
+            <label>Charset:</label>
+            <div class="value" id="charset"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Headers Section -->
+      <section class="section">
+        <h2>📑 Header Structure</h2>
+        <div id="headers"></div>
+      </section>
+
+      <!-- Links Section -->
+      <section class="section">
+        <h2>🔗 Link Analysis</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Links</div>
+            <div class="stat-value" id="totalLinks">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Internal</div>
+            <div class="stat-value" id="internalLinks">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">External</div>
+            <div class="stat-value" id="externalLinks">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">NoFollow</div>
+            <div class="stat-value" id="nofollowLinks">0</div>
+          </div>
+        </div>
+        <div id="externalLinksList"></div>
+      </section>
+
+      <!-- Images Section -->
+      <section class="section">
+        <h2>🖼️ Image Analysis</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Images</div>
+            <div class="stat-value" id="totalImages">0</div>
+          </div>
+          <div class="stat-box success">
+            <div class="stat-label">With Alt Text</div>
+            <div class="stat-value" id="imagesWithAlt">0</div>
+          </div>
+          <div class="stat-box warning">
+            <div class="stat-label">Missing Alt</div>
+            <div class="stat-value" id="imagesMissingAlt">0</div>
+          </div>
+        </div>
+        <div id="missingAltList"></div>
+      </section>
+
+      <!-- Performance Section -->
+      <section class="section">
+        <h2>⚡ Performance Metrics</h2>
+        <div id="performance"></div>
+      </section>
+
+      <!-- Canonical & Robots Section -->
+      <section class="section">
+        <h2>🤖 Robots & Canonical</h2>
+        <div class="info-group">
+          <div class="info-item">
+            <label>Canonical URL:</label>
+            <div class="value" id="canonical"></div>
+          </div>
+          <div class="info-item">
+            <label>Robots:</label>
+            <div class="value" id="robots"></div>
+          </div>
+          <div class="info-item">
+            <label>Indexing Status:</label>
+            <div class="value" id="indexStatus"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Open Graph Section -->
+      <section class="section">
+        <h2>📱 Social Media Tags</h2>
+        <div class="info-group">
+          <div class="info-item">
+            <label>OG Title:</label>
+            <div class="value" id="ogTitle"></div>
+          </div>
+          <div class="info-item">
+            <label>OG Description:</label>
+            <div class="value" id="ogDescription"></div>
+          </div>
+          <div class="info-item">
+            <label>OG Image:</label>
+            <div class="value" id="ogImage"></div>
+          </div>
+          <div class="info-item">
+            <label>Twitter Card:</label>
+            <div class="value" id="twitterCard"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Structured Data Section -->
+      <section class="section">
+        <h2>🏗️ Structured Data</h2>
+        <div id="structuredData"></div>
+      </section>
+
+      <!-- Additional Info -->
+      <section class="section">
+        <h2>📊 Additional Info</h2>
+        <div class="info-group">
+          <div class="info-item">
+            <label>Word Count:</label>
+            <div class="value" id="wordCount"></div>
+          </div>
+          <div class="info-item">
+            <label>URL:</label>
+            <div class="value url" id="pageUrl"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
