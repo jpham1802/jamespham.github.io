@@ -35,6 +35,9 @@ function displaySEOData(data) {
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('content').classList.remove('hidden');
 
+  // Recommendations (show first)
+  displayRecommendations(data.recommendations);
+
   // Meta Tags
   displayMetaTags(data.meta);
 
@@ -295,6 +298,74 @@ function displayStructuredData(structured) {
     typesList.textContent = 'Types: ' + structured.types.join(', ');
     structuredDiv.appendChild(typesList);
   }
+}
+
+function displayRecommendations(recommendations) {
+  const recommendationsDiv = document.getElementById('recommendations');
+
+  if (!recommendations || recommendations.length === 0) {
+    recommendationsDiv.innerHTML = `
+      <div class="success-message">
+        🎉 Great job! No critical issues found. Your page follows SEO best practices.
+      </div>
+    `;
+    return;
+  }
+
+  recommendationsDiv.innerHTML = '';
+
+  recommendations.forEach((rec, index) => {
+    const recCard = document.createElement('div');
+    recCard.className = `recommendation-card priority-${rec.priority}`;
+
+    const priorityBadge = document.createElement('span');
+    priorityBadge.className = `priority-badge priority-${rec.priority}`;
+    priorityBadge.textContent = rec.priority.toUpperCase();
+
+    const issueTitle = document.createElement('h3');
+    issueTitle.className = 'recommendation-title';
+    issueTitle.textContent = `${index + 1}. ${rec.issue}`;
+
+    const actionDiv = document.createElement('div');
+    actionDiv.className = 'recommendation-action';
+    actionDiv.innerHTML = `<strong>What to do:</strong> ${rec.action}`;
+
+    const whyDiv = document.createElement('div');
+    whyDiv.className = 'recommendation-why';
+    whyDiv.innerHTML = `<strong>Why it matters:</strong> ${rec.why}`;
+
+    recCard.appendChild(priorityBadge);
+    recCard.appendChild(issueTitle);
+    recCard.appendChild(actionDiv);
+    recCard.appendChild(whyDiv);
+
+    recommendationsDiv.appendChild(recCard);
+  });
+
+  // Add summary at the top
+  const summary = document.createElement('div');
+  summary.className = 'recommendations-summary';
+
+  const criticalCount = recommendations.filter(r => r.priority === 'critical').length;
+  const highCount = recommendations.filter(r => r.priority === 'high').length;
+  const mediumCount = recommendations.filter(r => r.priority === 'medium').length;
+  const lowCount = recommendations.filter(r => r.priority === 'low').length;
+
+  let summaryText = `Found ${recommendations.length} item${recommendations.length > 1 ? 's' : ''} to improve: `;
+  const parts = [];
+  if (criticalCount > 0) parts.push(`${criticalCount} critical`);
+  if (highCount > 0) parts.push(`${highCount} high`);
+  if (mediumCount > 0) parts.push(`${mediumCount} medium`);
+  if (lowCount > 0) parts.push(`${lowCount} low`);
+
+  summaryText += parts.join(', ');
+
+  summary.innerHTML = `
+    <div class="summary-text">${summaryText}</div>
+    <div class="summary-tip">💡 Tip: Start with critical and high priority items first for maximum impact.</div>
+  `;
+
+  recommendationsDiv.insertBefore(summary, recommendationsDiv.firstChild);
 }
 
 function showError(message) {
