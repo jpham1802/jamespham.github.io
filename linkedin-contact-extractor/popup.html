@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Contact Extractor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LinkedIn Contact Extractor</h1>
+      <p class="subtitle">Extract contact info from Sales Navigator</p>
+    </header>
+
+    <div id="status" class="status hidden">
+      <div class="status-icon">ℹ️</div>
+      <div class="status-message"></div>
+    </div>
+
+    <div id="not-linkedin" class="warning hidden">
+      <div class="warning-icon">⚠️</div>
+      <div class="warning-message">
+        Please navigate to a LinkedIn Sales Navigator profile page to extract contact information.
+      </div>
+    </div>
+
+    <div id="extract-section" class="hidden">
+      <button id="extract-btn" class="primary-btn">
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 11a5 5 0 110-10 5 5 0 010 10z"/>
+          <path d="M8 4a.5.5 0 01.5.5v3h3a.5.5 0 010 1h-3v3a.5.5 0 01-1 0v-3h-3a.5.5 0 010-1h3v-3A.5.5 0 018 4z"/>
+        </svg>
+        <span class="btn-text">Extract Contact Info</span>
+      </button>
+    </div>
+
+    <div id="data-display" class="data-display hidden">
+      <div class="data-field">
+        <label>Full Name</label>
+        <div class="field-content">
+          <input type="text" id="field-fullName" readonly>
+          <button class="copy-btn" data-field="fullName" title="Copy to clipboard">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2z"/>
+              <path d="M2 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-1H2V6z" opacity="0.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="data-field">
+        <label>Job Title</label>
+        <div class="field-content">
+          <input type="text" id="field-jobTitle" readonly>
+          <button class="copy-btn" data-field="jobTitle" title="Copy to clipboard">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2z"/>
+              <path d="M2 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-1H2V6z" opacity="0.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="data-field">
+        <label>Location</label>
+        <div class="field-content">
+          <input type="text" id="field-location" readonly>
+          <button class="copy-btn" data-field="location" title="Copy to clipboard">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2z"/>
+              <path d="M2 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-1H2V6z" opacity="0.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="data-field">
+        <label>Company</label>
+        <div class="field-content">
+          <input type="text" id="field-company" readonly>
+          <button class="copy-btn" data-field="company" title="Copy to clipboard">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2z"/>
+              <path d="M2 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-1H2V6z" opacity="0.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="copy-all-btn" class="secondary-btn">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2z"/>
+            <path d="M2 6a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-1H2V6z" opacity="0.6"/>
+          </svg>
+          <span class="btn-text">Copy All</span>
+        </button>
+        <button id="clear-btn" class="secondary-btn">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+            <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+          </svg>
+          <span class="btn-text">Clear</span>
+        </button>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-info">
+        <small>Works on LinkedIn Sales Navigator profile pages</small>
+      </div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
