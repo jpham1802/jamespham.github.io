@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF to Word Converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 560px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .drop-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #fafafa;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: #4f46e5;
+      background: #f5f3ff;
+    }
+
+    .drop-zone input[type="file"] {
+      display: none;
+    }
+
+    .drop-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .drop-zone p {
+      color: #374151;
+      font-size: 0.95rem;
+    }
+
+    .drop-zone span {
+      color: #4f46e5;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .file-info {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: #166534;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .file-info.show { display: flex; }
+
+    .file-info .remove-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .convert-btn {
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .convert-btn:hover { background: #4338ca; }
+    .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .progress-wrap {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .progress-wrap.show { display: block; }
+
+    .progress-label {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      background: #e5e7eb;
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 9999px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 0.875rem;
+      color: #6b7280;
+      min-height: 20px;
+    }
+
+    .status.error { color: #dc2626; }
+    .status.success { color: #16a34a; }
+
+    .download-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 14px;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: none;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .download-btn:hover { background: #15803d; }
+    .download-btn.show { display: block; }
+
+    .note {
+      margin-top: 24px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>PDF to Word Converter</h1>
+    <p class="subtitle">Convert PDF files to .docx locally — no upload, no server.</p>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="drop-icon">📄</div>
+      <p>Drag &amp; drop a PDF here, or <span id="browseLink">browse</span></p>
+    </div>
+
+    <div class="file-info" id="fileInfo">
+      <span id="fileName"></span>
+      <button class="remove-btn" id="removeBtn" title="Remove file">✕</button>
+    </div>
+
+    <button class="convert-btn" id="convertBtn" disabled>Convert to Word</button>
+
+    <div class="progress-wrap" id="progressWrap">
+      <p class="progress-label" id="progressLabel">Processing pages…</p>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <p class="status" id="status"></p>
+
+    <a class="download-btn" id="downloadBtn" href="#" download>Download .docx file</a>
+
+    <p class="note">All processing happens in your browser. Your file is never uploaded anywhere.</p>
+  </div>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- JSZip for building .docx -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const dropZone   = document.getElementById('dropZone');
+    const fileInput  = document.getElementById('fileInput');
+    const browseLink = document.getElementById('browseLink');
+    const fileInfo   = document.getElementById('fileInfo');
+    const fileName   = document.getElementById('fileName');
+    const removeBtn  = document.getElementById('removeBtn');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar  = document.getElementById('progressBar');
+    const progressLabel = document.getElementById('progressLabel');
+    const statusEl   = document.getElementById('status');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let selectedFile = null;
+
+    browseLink.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', (e) => { if (e.target !== browseLink) fileInput.click(); });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) setFile(fileInput.files[0]);
+    });
+
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if (f && f.type === 'application/pdf') setFile(f);
+      else setStatus('Please drop a valid PDF file.', 'error');
+    });
+
+    removeBtn.addEventListener('click', resetFile);
+
+    function setFile(f) {
+      selectedFile = f;
+      fileName.textContent = f.name + ' (' + formatBytes(f.size) + ')';
+      fileInfo.classList.add('show');
+      convertBtn.disabled = false;
+      downloadBtn.classList.remove('show');
+      setStatus('');
+    }
+
+    function resetFile() {
+      selectedFile = null;
+      fileInput.value = '';
+      fileInfo.classList.remove('show');
+      convertBtn.disabled = true;
+      downloadBtn.classList.remove('show');
+      progressWrap.classList.remove('show');
+      setStatus('');
+    }
+
+    function setStatus(msg, type = '') {
+      statusEl.textContent = msg;
+      statusEl.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function formatBytes(b) {
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    convertBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      convertBtn.disabled = true;
+      downloadBtn.classList.remove('show');
+      progressWrap.classList.add('show');
+      progressBar.style.width = '0%';
+      setStatus('Reading PDF…');
+
+      try {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const totalPages = pdf.numPages;
+
+        const pageTexts = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+          progressLabel.textContent = `Processing page ${i} of ${totalPages}…`;
+          progressBar.style.width = ((i / totalPages) * 80) + '%';
+
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+
+          // Group items by line using approximate Y coordinates
+          const lines = groupByLines(content.items);
+          pageTexts.push(lines);
+        }
+
+        progressLabel.textContent = 'Building Word document…';
+        progressBar.style.width = '90%';
+
+        const docxBlob = await buildDocx(pageTexts, selectedFile.name);
+
+        progressBar.style.width = '100%';
+        setStatus('Conversion complete!', 'success');
+
+        const url = URL.createObjectURL(docxBlob);
+        const outName = selectedFile.name.replace(/\.pdf$/i, '') + '.docx';
+        downloadBtn.href = url;
+        downloadBtn.download = outName;
+        downloadBtn.textContent = `Download ${outName}`;
+        downloadBtn.classList.add('show');
+
+      } catch (err) {
+        setStatus('Error: ' + err.message, 'error');
+        console.error(err);
+      } finally {
+        convertBtn.disabled = false;
+        progressWrap.classList.remove('show');
+      }
+    });
+
+    function groupByLines(items) {
+      if (!items.length) return [];
+
+      // Sort by descending Y (PDF coords start at bottom), then ascending X
+      const sorted = [...items].sort((a, b) => {
+        const dy = b.transform[5] - a.transform[5];
+        return Math.abs(dy) > 2 ? dy : a.transform[4] - b.transform[4];
+      });
+
+      const lines = [];
+      let currentY = null;
+      let currentLine = [];
+
+      for (const item of sorted) {
+        const y = Math.round(item.transform[5]);
+        if (currentY === null || Math.abs(y - currentY) > 2) {
+          if (currentLine.length) lines.push(currentLine.join(' '));
+          currentLine = [item.str];
+          currentY = y;
+        } else {
+          currentLine.push(item.str);
+        }
+      }
+      if (currentLine.length) lines.push(currentLine.join(' '));
+
+      return lines;
+    }
+
+    async function buildDocx(pageTexts, originalName) {
+      const zip = new JSZip();
+
+      // [Content_Types].xml
+      zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+
+      // _rels/.rels
+      zip.folder('_rels').file('.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+
+      // word/_rels/document.xml.rels
+      zip.folder('word').folder('_rels').file('document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`);
+
+      // word/styles.xml
+      zip.folder('word').file('styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+    <w:name w:val="Normal"/>
+    <w:rPr>
+      <w:sz w:val="24"/>
+      <w:szCs w:val="24"/>
+    </w:rPr>
+  </w:style>
+</w:styles>`);
+
+      // Build paragraphs
+      const paragraphs = [];
+
+      for (let p = 0; p < pageTexts.length; p++) {
+        const lines = pageTexts[p];
+
+        for (const line of lines) {
+          const escaped = escapeXml(line);
+          paragraphs.push(`  <w:p><w:r><w:t xml:space="preserve">${escaped}</w:t></w:r></w:p>`);
+        }
+
+        // Page break between pages (except after last page)
+        if (p < pageTexts.length - 1) {
+          paragraphs.push(`  <w:p><w:r><w:br w:type="page"/></w:r></w:p>`);
+        }
+      }
+
+      const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+            xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+${paragraphs.join('\n')}
+  <w:sectPr>
+    <w:pgSz w:w="12240" w:h="15840"/>
+    <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/>
+  </w:sectPr>
+</w:body>
+</w:document>`;
+
+      zip.folder('word').file('document.xml', documentXml);
+
+      return await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    }
+
+    function escapeXml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+  </script>
+</body>
+</html>
